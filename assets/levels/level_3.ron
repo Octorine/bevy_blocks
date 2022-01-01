@@ -1,0 +1,29 @@
+Level(
+    level_width: 1100,
+    level_height: 720,
+    ball_velocity: 1.5,
+    block_margin: 5,
+    block_width: 80,
+    block_height: 40,
+    blocks: [
+        Block(
+            name: 'a',
+            sprite_number: 2
+        ),
+        Block(
+            name: 'b',
+            sprite_number: 3
+        ),
+        Block(
+            name: 'c',
+            sprite_number: 4
+        )
+    ],
+    rows: [
+        "ababababababa",
+        "babababababab",
+        "ababababababa",
+        "babababababab",
+        "ababababababa"
+    ]
+)

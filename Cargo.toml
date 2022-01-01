@@ -1,0 +1,12 @@
+[package]
+name = "bevy_blocks"
+version = "0.1.0"
+authors = ["James Jackson <j.e.m.jackson@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+bevy = "0.5"
+serde = "1.0"
+ron = "0.6"
