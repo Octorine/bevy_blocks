@@ -7,6 +7,30 @@ use bevy::{
 
 use crate::{SCREEN_HEIGHT, SCREEN_WIDTH};
 const TIME_STEP: f32 = 1.0 / 60.0;
+
+pub fn enter_system_set() -> SystemSet {
+    SystemSet::on_enter(crate::state::GameState::Level).with_system(setup_level.system())
+}
+
+pub fn update_system_set() -> SystemSet {
+    SystemSet::on_update(crate::state::GameState::Level)
+        .with_system(ball_movement_system.system())
+        .with_system(paddle_movement_system.system())
+        .with_system(ball_collision_system.system())
+        .with_system(ball_boundary_system.system())
+}
+fn setup_level(
+    mut commands: Commands,
+    mut asset_server: Res<AssetServer>,
+    atlases: ResMut<Assets<TextureAtlas>>,
+    levels: Res<Vec<crate::level::Level>>,
+) {
+    let atlas = crate::sprite_sheet::build_sprite_sheet(&mut asset_server, atlases);
+    crate::level::add_bricks(&mut commands, &levels[0], atlas.clone());
+    setup_ball_and_paddle(&mut commands, atlas);
+    setup_level_ui(&mut commands, asset_server)
+}
+
 pub struct Paddle {
     speed: f32,
 }
