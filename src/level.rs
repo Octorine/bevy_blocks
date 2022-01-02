@@ -25,7 +25,7 @@ pub fn add_bricks(commands: &mut Commands, level: &Level, atlas: Handle<TextureA
         block_map.insert(block.name, block.sprite_number);
     }
     let left = -(level.level_width as i32 - level.block_width as i32) / 2;
-    let top = (crate::SCREEN_HEIGHT as i32 - level.block_height as i32) / 2;
+    let top = (crate::SCREEN_HEIGHT as i32 - level.block_height as i32) / 2 - 40;
     let mut current_row = 0.0;
     for row in &level.rows {
         let mut current_col = 0.0;

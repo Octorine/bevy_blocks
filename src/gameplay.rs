@@ -1,5 +1,6 @@
 use bevy::{
     app::AppExit,
+    ecs::system::Command,
     prelude::*,
     sprite::collide_aabb::{collide, Collision},
 };
@@ -28,6 +29,56 @@ impl Collider {
     }
 }
 
+pub struct Score {
+    pub points: i32,
+    pub lives: i32,
+}
+impl Score {
+    pub fn new() -> Score {
+        Score {
+            points: 0,
+            lives: 3,
+        }
+    }
+}
+
+pub fn setup_level_ui(commands: &mut Commands, mut asset_server: Res<AssetServer>) {
+    commands.spawn_bundle(UiCameraBundle::default());
+    commands.insert_resource(Score::new());
+    commands.spawn_bundle(TextBundle {
+        text: Text {
+            sections: vec![
+                TextSection {
+                    value: "Score: ".to_string(),
+                    style: TextStyle {
+                        font: asset_server.load("font/FiraSans-Light.ttf"),
+                        font_size: 40.0,
+                        color: Color::rgb(0.5, 0.5, 1.0),
+                    },
+                },
+                TextSection {
+                    value: "".to_string(),
+                    style: TextStyle {
+                        font: asset_server.load("font/FiraSans-Light.ttf"),
+                        font_size: 40.0,
+                        color: Color::rgb(1.0, 0.5, 0.5),
+                    },
+                },
+            ],
+            ..Default::default()
+        },
+        style: Style {
+            position_type: PositionType::Absolute,
+            position: Rect {
+                top: Val::Px(5.0),
+                left: Val::Px(5.0),
+                ..Default::default()
+            },
+            ..Default::default()
+        },
+        ..Default::default()
+    });
+}
 pub fn setup_ball_and_paddle(commands: &mut Commands, atlas: Handle<TextureAtlas>) {
     // paddle
     commands
@@ -112,8 +163,12 @@ pub fn ball_boundary_system(
 pub fn ball_collision_system(
     mut commands: Commands,
     mut ball_query: Query<(&mut Ball, &Transform)>,
+    mut score: ResMut<Score>,
+    mut ui_query: Query<(&mut Text)>,
     collider_query: Query<(Entity, &Collider, &Transform)>,
 ) {
+    let mut ui = ui_query.single_mut().unwrap();
+
     if let Ok((mut ball, ball_transform)) = ball_query.single_mut() {
         let ball_size = ball.size;
         let velocity = &mut ball.velocity;
@@ -130,6 +185,9 @@ pub fn ball_collision_system(
                 // scorable colliders should be despawned and increment the scoreboard on collision
                 if let Collider::Scorable { size: _ } = *collider {
                     commands.entity(collider_entity).despawn();
+                    score.points += 1;
+                    ui.sections[0].value = format!("Score: {}", score.points);
+                    ui.sections[1].value = format!("Lives: {}", score.lives);
                 }
 
                 // reflect the ball when it collides

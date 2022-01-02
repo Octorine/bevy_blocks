@@ -47,4 +47,5 @@ fn setup(
     let atlas = sprite_sheet::build_sprite_sheet(&mut asset_server, atlases);
     level::add_bricks(&mut commands, &level, atlas.clone());
     gameplay::setup_ball_and_paddle(&mut commands, atlas);
+    gameplay::setup_level_ui(&mut commands, asset_server)
 }
