@@ -15,7 +15,6 @@ struct SpriteSheetSpecs {
     texture_height: usize,
     sprites: Vec<SpriteSpecs>,
 }
-
 pub fn build_sprite_sheet(
     asset_server: &mut Res<AssetServer>,
     mut atlases: ResMut<Assets<TextureAtlas>>,

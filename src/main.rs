@@ -11,7 +11,7 @@ const SCREEN_WIDTH: f32 = 1280.;
 const SCREEN_HEIGHT: f32 = 720.;
 
 fn main() {
-    App::build()
+    App::new()
         .add_state(state::GameState::Level)
         .insert_resource(WindowDescriptor {
             title: "Break the Blocks!".to_string(),
@@ -43,6 +43,6 @@ fn setup(
     commands.spawn_bundle(OrthographicCameraBundle::new_2d());
     let level_files = load_all_levels();
     commands.insert_resource(level_files.clone());
-    let level = level_files[0].clone();
-    let atlas = sprite_sheet::build_sprite_sheet(&mut asset_server, atlases);
+    let _level = level_files[0].clone();
+    let _atlas = sprite_sheet::build_sprite_sheet(&mut asset_server, atlases);
 }

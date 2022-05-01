@@ -1,13 +1,13 @@
 use bevy::prelude::*;
 use serde::Deserialize;
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Deserialize, Debug, Clone, Component)]
 pub struct Block {
     pub name: char,
     pub sprite_number: usize,
 }
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Deserialize, Debug, Clone, Component)]
 pub struct Level {
     pub level_width: usize,
     pub level_height: usize,
@@ -36,7 +36,7 @@ pub fn add_bricks(commands: &mut Commands, level: &Level, atlas: Handle<TextureA
                         .spawn_bundle(SpriteSheetBundle {
                             texture_atlas: atlas.clone(),
                             sprite: TextureAtlasSprite {
-                                index: *num as u32,
+                                index: *num as usize,
                                 ..Default::default()
                             },
                             transform: Transform {
