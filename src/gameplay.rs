@@ -67,44 +67,74 @@ impl Score {
         }
     }
 }
+#[derive(Component)]
+pub struct PointsText;
+
+#[derive(Component)]
+pub struct LivesText;
 
 pub fn setup_level_ui(commands: &mut Commands, asset_server: Res<AssetServer>) {
     commands.spawn_bundle(UiCameraBundle::default());
     commands.insert_resource(Score::new());
-    commands.spawn_bundle(TextBundle {
-        text: Text {
-            sections: vec![
-                TextSection {
-                    value: "Score: ".to_string(),
-                    style: TextStyle {
-                        font: asset_server.load("font/FiraSans-Light.ttf"),
-                        font_size: 40.0,
-                        color: Color::rgb(0.5, 0.5, 1.0),
-                    },
-                },
-                TextSection {
-                    value: "".to_string(),
-                    style: TextStyle {
-                        font: asset_server.load("font/FiraSans-Light.ttf"),
-                        font_size: 40.0,
-                        color: Color::rgb(1.0, 0.5, 0.5),
-                    },
-                },
-            ],
-            ..Default::default()
-        },
-        style: Style {
-            position_type: PositionType::Absolute,
-            position: Rect {
-                top: Val::Px(5.0),
-                left: Val::Px(5.0),
+    let style = TextStyle {
+        font: asset_server.load("font/FiraSans-Light.ttf"),
+        font_size: 40.0,
+        color: Color::rgb(0.5, 0.5, 1.0),
+    };
+
+    commands
+        .spawn_bundle(NodeBundle {
+            style: Style {
+                direction: Direction::LeftToRight,
+                flex_direction: FlexDirection::Row,
+                align_self: AlignSelf::FlexEnd,
+                justify_content: JustifyContent::SpaceAround,
+                align_items: AlignItems::Stretch,
                 ..Default::default()
             },
             ..Default::default()
-        },
-        ..Default::default()
-    });
+        })
+        .with_children(|parent| {
+            parent
+                .spawn_bundle(TextBundle {
+                    text: Text::with_section(
+                        "Score: ".to_string(),
+                        style.clone(),
+                        TextAlignment {
+                            vertical: VerticalAlign::Top,
+                            horizontal: HorizontalAlign::Left,
+                        },
+                    ),
+                    style: Style {
+                        align_self: AlignSelf::Stretch,
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                })
+                .insert(PointsText);
+
+            parent
+                .spawn_bundle(TextBundle {
+                    text: Text::with_section(
+                        "Lives: ".to_string(),
+                        style,
+                        TextAlignment {
+                            vertical: VerticalAlign::Top,
+                            horizontal: HorizontalAlign::Right,
+                        },
+                    ),
+                    style: Style {
+                        align_self: AlignSelf::Stretch,
+
+                        ..Default::default()
+                    },
+
+                    ..Default::default()
+                })
+                .insert(LivesText);
+        });
 }
+
 pub fn setup_ball_and_paddle(commands: &mut Commands, atlas: Handle<TextureAtlas>) {
     // paddle
     commands
@@ -188,14 +218,13 @@ pub fn ball_collision_system(
     mut commands: Commands,
     mut ball_query: Query<(&mut Ball, &Transform)>,
     mut score: ResMut<Score>,
-    mut ui_query: Query<&mut Text>,
+    mut points_txt_query: Query<(&mut Text, &PointsText)>,
     collider_query: Query<(Entity, &Collider, &Transform)>,
 ) {
-    let mut ui = ui_query.single_mut();
-
     let (mut ball, ball_transform) = ball_query.single_mut();
     let ball_size = ball.size;
     let velocity = &mut ball.velocity;
+    let (mut points_text, _) = points_txt_query.get_single_mut().unwrap();
 
     // check collision with walls
     for (collider_entity, collider, transform) in collider_query.iter() {
@@ -210,8 +239,7 @@ pub fn ball_collision_system(
             if let Collider::Scorable { size: _ } = *collider {
                 commands.entity(collider_entity).despawn();
                 score.points += 1;
-                ui.sections[0].value = format!("Score: {}", score.points);
-                ui.sections[1].value = format!("Lives: {}", score.lives);
+                points_text.as_mut().sections[0].value = format!("Score: {}", score.points);
             }
 
             // reflect the ball when it collides
