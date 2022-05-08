@@ -199,7 +199,7 @@ pub fn ball_boundary_system(
     mut ball_query: Query<(&mut Ball, &mut Transform)>,
     mut exit: EventWriter<AppExit>,
 ) {
-    let horizontal = SCREEN_WIDTH / 2. - 30.0;
+    let horizontal = SCREEN_WIDTH / 2. - 15.0;
     let vertical = (SCREEN_HEIGHT - 30.) / 2.;
     let (mut ball, mut transform) = ball_query.single_mut();
     if transform.translation.x < -horizontal || transform.translation.x > horizontal {
