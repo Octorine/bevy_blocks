@@ -2,7 +2,10 @@ mod gameplay;
 mod level;
 mod sprite_sheet;
 mod state;
-use bevy::prelude::*;
+use bevy::{
+    diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
+    prelude::*,
+};
 pub struct Ball {
     pub velocity_x: f32,
     pub velocity_y: f32,
@@ -25,6 +28,8 @@ fn main() {
         .add_system(bevy::input::system::exit_on_esc_system.system())
         .add_system_set(gameplay::enter_system_set())
         .add_system_set(gameplay::update_system_set())
+        .add_plugin(LogDiagnosticsPlugin::default())
+        .add_plugin(FrameTimeDiagnosticsPlugin::default())
         .run();
 }
 pub fn load_all_levels() -> std::vec::Vec<level::Level> {
