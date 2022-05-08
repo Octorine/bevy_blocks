@@ -76,7 +76,7 @@ pub struct LivesText;
 pub fn setup_level_ui(commands: &mut Commands, asset_server: Res<AssetServer>) {
     commands.spawn_bundle(UiCameraBundle::default());
     commands.insert_resource(Score::new());
-    let style = TextStyle {
+    let text_style = TextStyle {
         font: asset_server.load("font/FiraSans-Light.ttf"),
         font_size: 40.0,
         color: Color::rgb(0.5, 0.5, 1.0),
@@ -85,11 +85,13 @@ pub fn setup_level_ui(commands: &mut Commands, asset_server: Res<AssetServer>) {
     commands
         .spawn_bundle(NodeBundle {
             style: Style {
-                direction: Direction::LeftToRight,
                 flex_direction: FlexDirection::Row,
                 align_self: AlignSelf::FlexEnd,
-                justify_content: JustifyContent::SpaceAround,
-                align_items: AlignItems::Stretch,
+                justify_content: JustifyContent::SpaceBetween,
+                size: Size {
+                    height: Val::Px(40.0),
+                    width: Val::Percent(100.0),
+                },
                 ..Default::default()
             },
             ..Default::default()
@@ -99,14 +101,14 @@ pub fn setup_level_ui(commands: &mut Commands, asset_server: Res<AssetServer>) {
                 .spawn_bundle(TextBundle {
                     text: Text::with_section(
                         "Score: ".to_string(),
-                        style.clone(),
+                        text_style.clone(),
                         TextAlignment {
                             vertical: VerticalAlign::Top,
                             horizontal: HorizontalAlign::Left,
                         },
                     ),
                     style: Style {
-                        align_self: AlignSelf::Stretch,
+                        flex_grow: 0.0,
                         ..Default::default()
                     },
                     ..Default::default()
@@ -117,18 +119,16 @@ pub fn setup_level_ui(commands: &mut Commands, asset_server: Res<AssetServer>) {
                 .spawn_bundle(TextBundle {
                     text: Text::with_section(
                         "Lives: ".to_string(),
-                        style,
+                        text_style,
                         TextAlignment {
                             vertical: VerticalAlign::Top,
                             horizontal: HorizontalAlign::Right,
                         },
                     ),
                     style: Style {
-                        align_self: AlignSelf::Stretch,
-
+                        flex_grow: 0.0,
                         ..Default::default()
                     },
-
                     ..Default::default()
                 })
                 .insert(LivesText);
