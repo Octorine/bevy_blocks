@@ -12,10 +12,11 @@ pub struct Ball {
 }
 const SCREEN_WIDTH: f32 = 1100.;
 const SCREEN_HEIGHT: f32 = 720.;
-
+const BACKGROUND_COLOR: Color = Color::rgb(0.58, 0.31, 0.15);
 fn main() {
     App::new()
         .add_state(state::GameState::Level)
+        .insert_resource(ClearColor(BACKGROUND_COLOR))
         .insert_resource(WindowDescriptor {
             title: "Break the Blocks!".to_string(),
             width: SCREEN_WIDTH,

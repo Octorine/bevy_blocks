@@ -4,7 +4,7 @@ use bevy::{
     sprite::collide_aabb::{collide, Collision},
 };
 
-use crate::{SCREEN_HEIGHT, SCREEN_WIDTH};
+use crate::{BACKGROUND_COLOR, SCREEN_HEIGHT, SCREEN_WIDTH};
 const TIME_STEP: f32 = 1.0 / 60.0;
 
 pub fn enter_system_set() -> SystemSet {
@@ -79,7 +79,7 @@ pub fn setup_level_ui(commands: &mut Commands, asset_server: Res<AssetServer>) {
     let text_style = TextStyle {
         font: asset_server.load("font/FiraSans-Light.ttf"),
         font_size: 40.0,
-        color: Color::rgb(0.5, 0.5, 1.0),
+        color: Color::rgb(0.71, 0.8, 0.4),
     };
 
     commands
@@ -92,8 +92,15 @@ pub fn setup_level_ui(commands: &mut Commands, asset_server: Res<AssetServer>) {
                     height: Val::Px(40.0),
                     width: Val::Percent(100.0),
                 },
+
                 ..Default::default()
             },
+            color: UiColor(Color::Rgba {
+                red: 1.,
+                green: 1.,
+                blue: 1.,
+                alpha: 0.0,
+            }),
             ..Default::default()
         })
         .with_children(|parent| {
