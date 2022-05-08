@@ -10,7 +10,7 @@ pub struct Ball {
     pub velocity_x: f32,
     pub velocity_y: f32,
 }
-const SCREEN_WIDTH: f32 = 1280.;
+const SCREEN_WIDTH: f32 = 1100.;
 const SCREEN_HEIGHT: f32 = 720.;
 
 fn main() {
