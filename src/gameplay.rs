@@ -17,7 +17,22 @@ pub fn update_system_set() -> SystemSet {
         .with_system(paddle_movement_system.system())
         .with_system(ball_collision_system.system())
         .with_system(ball_boundary_system.system())
+        .with_system(initial_pause_check)
 }
+pub fn paused_update_system_set() -> SystemSet {
+    SystemSet::on_inactive_update(crate::state::GameState::Level)
+}
+pub fn initial_pause_check(
+    mut state: ResMut<State<crate::state::GameState>>,
+    mut is_new: ResMut<BrandNewLevel>,
+) {
+    if is_new.0 {
+        state.push(crate::state::GameState::PauseMenu);
+        is_new.0 = false;
+    }
+}
+pub struct BrandNewLevel(bool);
+
 fn setup_level(
     mut commands: Commands,
     mut asset_server: Res<AssetServer>,
@@ -27,7 +42,8 @@ fn setup_level(
     let atlas = crate::sprite_sheet::build_sprite_sheet(&mut asset_server, atlases);
     crate::level::add_bricks(&mut commands, &levels[0], atlas.clone());
     setup_ball_and_paddle(&mut commands, atlas);
-    setup_level_ui(&mut commands, asset_server)
+    setup_level_ui(&mut commands, asset_server);
+    commands.insert_resource(BrandNewLevel(true));
 }
 #[derive(Component)]
 pub struct Paddle {

@@ -1,5 +1,6 @@
 mod gameplay;
 mod level;
+mod pause_menu;
 mod sprite_sheet;
 mod state;
 use bevy::{
@@ -29,6 +30,10 @@ fn main() {
         .add_system(bevy::input::system::exit_on_esc_system.system())
         .add_system_set(gameplay::enter_system_set())
         .add_system_set(gameplay::update_system_set())
+        .add_system_set(gameplay::paused_update_system_set())
+        .add_system_set(pause_menu::enter_system_set())
+        .add_system_set(pause_menu::update_system_set())
+        .add_system_set(pause_menu::exit_system_set())
         .add_plugin(LogDiagnosticsPlugin::default())
         .add_plugin(FrameTimeDiagnosticsPlugin::default())
         .run();
