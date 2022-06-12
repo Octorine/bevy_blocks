@@ -37,12 +37,12 @@ pub fn setup_pause_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
                 },
             ),
             style: Style {
-                align_self: AlignSelf::Center,
-                align_content: AlignContent::Center,
-                flex_grow: 1.0,
-                size: Size {
-                    width: Val::Percent(100.0),
-                    height: Val::Percent(100.0),
+                position_type: PositionType::Absolute,
+
+                position: Rect {
+                    left: Val::Percent(25.0),
+                    top: Val::Percent(50.0),
+                    ..Default::default()
                 },
                 ..Default::default()
             },
