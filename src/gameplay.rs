@@ -193,7 +193,8 @@ pub fn setup_ball_and_paddle(commands: &mut Commands, atlas: Handle<TextureAtlas
 }
 
 pub fn paddle_movement_system(
-    keyboard_input: Res<Input<KeyCode>>,
+    mut keyboard_input: ResMut<Input<KeyCode>>,
+    mut state: ResMut<State<crate::state::GameState>>,
     mut query: Query<(&Paddle, &mut Transform)>,
 ) {
     let (paddle, mut transform) = query.single_mut();
@@ -204,6 +205,10 @@ pub fn paddle_movement_system(
 
     if keyboard_input.pressed(KeyCode::Right) {
         direction += 1.0;
+    }
+    if keyboard_input.pressed(KeyCode::Space) || keyboard_input.pressed(KeyCode::P) {
+        state.push(crate::state::GameState::PauseMenu);
+        
     }
 
     let horizontal_limit = (SCREEN_WIDTH - 162.) / 2.;
