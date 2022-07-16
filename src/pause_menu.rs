@@ -20,7 +20,6 @@ pub fn exit_system_set() -> SystemSet {
     SystemSet::on_exit(GameState::PauseMenu).with_system(teardown)
 }
 pub fn setup_pause_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
-    commands.spawn_bundle(UiCameraBundle::default());
     let text_style = TextStyle {
         font: asset_server.load("font/FiraSans-Light.ttf"),
         font_size: 60.0,
