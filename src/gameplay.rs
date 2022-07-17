@@ -1,5 +1,4 @@
-use bevy::{
-    app::AppExit,
+use bevy::{ app::AppExit,
     prelude::*,
     sprite::collide_aabb::{collide, Collision},
 };
@@ -8,15 +7,15 @@ use crate::{BACKGROUND_COLOR, SCREEN_HEIGHT, SCREEN_WIDTH};
 const TIME_STEP: f32 = 1.0 / 60.0;
 
 pub fn enter_system_set() -> SystemSet {
-    SystemSet::on_enter(crate::state::GameState::Level).with_system(setup_level.system())
+    SystemSet::on_enter(crate::state::GameState::Level).with_system(setup_level)
 }
 
 pub fn update_system_set() -> SystemSet {
     SystemSet::on_update(crate::state::GameState::Level)
-        .with_system(ball_movement_system.system())
-        .with_system(paddle_movement_system.system())
-        .with_system(ball_collision_system.system())
-        .with_system(ball_boundary_system.system())
+        .with_system(ball_movement_system)
+        .with_system(paddle_movement_system)
+        .with_system(ball_collision_system)
+        .with_system(ball_boundary_system)
         .with_system(initial_pause_check)
 }
 pub fn paused_update_system_set() -> SystemSet {
