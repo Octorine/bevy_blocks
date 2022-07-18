@@ -5,5 +5,6 @@ pub enum GameState {
     MainMenu,
     PauseMenu,
     Level,
+    GameOver,
     PreLevel,
 }
