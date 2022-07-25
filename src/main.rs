@@ -1,6 +1,7 @@
 mod gameplay;
 mod level;
 mod pause_menu;
+mod main_menu;
 mod sprite_sheet;
 mod state;
 use bevy::{
@@ -14,7 +15,7 @@ const BACKGROUND_COLOR: Color = Color::rgb(0.58, 0.31, 0.15);
 
 fn main() {
     App::new()
-        .add_state(state::GameState::Level)
+        .add_state(state::GameState::MainMenu)
         .insert_resource(ClearColor(BACKGROUND_COLOR))
         .insert_resource(WindowDescriptor {
             title: "Break the Blocks!".to_string(),
@@ -32,6 +33,9 @@ fn main() {
         .add_system_set(pause_menu::enter_system_set())
         .add_system_set(pause_menu::update_system_set())
         .add_system_set(pause_menu::exit_system_set())
+        .add_system_set(main_menu::enter_system_set())
+        .add_system_set(main_menu::update_system_set())
+        .add_system_set(main_menu::exit_system_set())
         .add_plugin(LogDiagnosticsPlugin::default())
         .add_plugin(FrameTimeDiagnosticsPlugin::default())
         .run();
@@ -50,6 +54,7 @@ fn setup(
     atlases: ResMut<Assets<TextureAtlas>>,
 ) {
     commands.spawn_bundle(OrthographicCameraBundle::new_2d());
+    commands.spawn_bundle(UiCameraBundle::default());
     let level_files = load_all_levels();
     commands.insert_resource(level_files.clone());
     let _level = level_files[0].clone();

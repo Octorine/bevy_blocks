@@ -89,7 +89,6 @@ pub struct PointsText;
 pub struct LivesText;
 
 pub fn setup_level_ui(commands: &mut Commands, asset_server: Res<AssetServer>) {
-    commands.spawn_bundle(UiCameraBundle::default());
     commands.insert_resource(Score::new());
     let text_style = TextStyle {
         font: asset_server.load("font/FiraSans-Light.ttf"),
