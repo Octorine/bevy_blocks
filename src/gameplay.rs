@@ -1,9 +1,9 @@
-use bevy::{ app::AppExit,
+use bevy::{
     prelude::*,
     sprite::collide_aabb::{collide, Collision},
 };
 
-use crate::{BACKGROUND_COLOR, SCREEN_HEIGHT, SCREEN_WIDTH};
+use crate::{SCREEN_HEIGHT, SCREEN_WIDTH};
 const TIME_STEP: f32 = 1.0 / 60.0;
 
 pub fn enter_system_set() -> SystemSet {
@@ -18,6 +18,9 @@ pub fn update_system_set() -> SystemSet {
         .with_system(ball_boundary_system)
         .with_system(initial_pause_check)
 }
+pub fn exit_system_set() -> SystemSet {
+    SystemSet::on_exit(crate::state::GameState::Level).with_system(teardown_system)
+}
 pub fn paused_update_system_set() -> SystemSet {
     SystemSet::on_inactive_update(crate::state::GameState::Level)
 }
@@ -26,22 +29,40 @@ pub fn initial_pause_check(
     mut is_new: ResMut<BrandNewLevel>,
 ) {
     if is_new.0 {
-        state.push(crate::state::GameState::PauseMenu);
+        state.push(crate::state::GameState::PauseMenu).expect("Failed to enter pause menu");
         is_new.0 = false;
     }
 }
 pub struct BrandNewLevel(bool);
+
+fn teardown_system(
+    mut commands: Commands,
+    ball_query: Query<(&Ball, Entity)>,
+    collider_query: Query<(&Collider, Entity)>,
+    ui_query: Query<(&Node, Entity)>,
+) {
+    for (_, be) in ball_query.iter() {
+        commands.entity(be).despawn();
+    }
+    for (_, ce) in collider_query.iter() {
+        commands.entity(ce).despawn();
+    }
+    for (_, uie) in ui_query.iter() {
+        commands.entity(uie).despawn();
+    }
+}
 
 fn setup_level(
     mut commands: Commands,
     mut asset_server: Res<AssetServer>,
     atlases: ResMut<Assets<TextureAtlas>>,
     levels: Res<Vec<crate::level::Level>>,
+    score: Res<Score>,
 ) {
     let atlas = crate::sprite_sheet::build_sprite_sheet(&mut asset_server, atlases);
-    crate::level::add_bricks(&mut commands, &levels[0], atlas.clone());
+    crate::level::add_bricks(&mut commands, &levels[score.current_level], atlas.clone());
     setup_ball_and_paddle(&mut commands, atlas);
-    setup_level_ui(&mut commands, asset_server);
+    setup_level_ui(&mut commands, asset_server, &*score);
     commands.insert_resource(BrandNewLevel(true));
 }
 #[derive(Component)]
@@ -71,6 +92,7 @@ impl Collider {
 
 #[derive(Component)]
 pub struct Score {
+    pub current_level: usize,
     pub points: i32,
     pub lives: i32,
 }
@@ -79,6 +101,7 @@ impl Score {
         Score {
             points: 0,
             lives: 3,
+            current_level: 0,
         }
     }
 }
@@ -88,8 +111,7 @@ pub struct PointsText;
 #[derive(Component)]
 pub struct LivesText;
 
-pub fn setup_level_ui(commands: &mut Commands, asset_server: Res<AssetServer>) {
-    commands.insert_resource(Score::new());
+pub fn setup_level_ui(commands: &mut Commands, asset_server: Res<AssetServer>, score: &Score) {
     let text_style = TextStyle {
         font: asset_server.load("font/FiraSans-Light.ttf"),
         font_size: 40.0,
@@ -121,7 +143,7 @@ pub fn setup_level_ui(commands: &mut Commands, asset_server: Res<AssetServer>) {
             parent
                 .spawn_bundle(TextBundle {
                     text: Text::with_section(
-                        "Score: ".to_string(),
+                              format!("Score: {}", score.points),
                         text_style.clone(),
                         TextAlignment {
                             vertical: VerticalAlign::Top,
@@ -139,7 +161,7 @@ pub fn setup_level_ui(commands: &mut Commands, asset_server: Res<AssetServer>) {
             parent
                 .spawn_bundle(TextBundle {
                     text: Text::with_section(
-                        "Lives: ".to_string(),
+                              format!("Lives: {}", score.lives),
                         text_style,
                         TextAlignment {
                             vertical: VerticalAlign::Top,
@@ -206,7 +228,6 @@ pub fn paddle_movement_system(
     }
     if keyboard_input.pressed(KeyCode::Space) || keyboard_input.pressed(KeyCode::P) {
         state.push(crate::state::GameState::PauseMenu);
-        
     }
 
     let horizontal_limit = (SCREEN_WIDTH - 162.) / 2.;
@@ -222,12 +243,15 @@ pub fn ball_movement_system(mut ball_query: Query<(&Ball, &mut Transform)>) {
     transform.translation += ball.velocity * TIME_STEP;
 }
 pub fn ball_boundary_system(
-    mut ball_query: Query<(&mut Ball, &mut Transform)>,
-    mut exit: EventWriter<AppExit>,
+    mut commands: Commands,
+    mut ball_query: Query<(&mut Ball, &mut Transform, Entity)>,
+    mut state: ResMut<State<crate::state::GameState>>,
+    mut lives_txt_query: Query<(&mut Text, &LivesText)>,
+    mut score: ResMut<Score>,
 ) {
     let horizontal = SCREEN_WIDTH / 2. - 15.0;
     let vertical = (SCREEN_HEIGHT - 30.) / 2.;
-    let (mut ball, mut transform) = ball_query.single_mut();
+    let (mut ball, mut transform, ball_entity) = ball_query.single_mut();
     if transform.translation.x < -horizontal || transform.translation.x > horizontal {
         transform.translation.x = transform.translation.x.min(horizontal).max(-horizontal);
         ball.velocity.x *= -1.0;
@@ -237,7 +261,17 @@ pub fn ball_boundary_system(
         ball.velocity.y *= -1.0;
     }
     if transform.translation.y < -vertical {
-        exit.send(AppExit);
+        score.lives -= 1;
+        if score.lives <= 0 {
+            state.set(crate::state::GameState::MainMenu);
+        } else {
+            let (mut lives_text, _) = lives_txt_query.get_single_mut().unwrap();
+            lives_text.sections[0].value = format!("Lives: {}", &score.lives);
+            ball.velocity = 400.0 * Vec3::new(0.5, 0.5, 0.0).normalize();
+
+            *transform = Transform::from_xyz(0.0, -250.0, 1.0);
+            state.push(crate::state::GameState::PauseMenu);
+        }
     }
 }
 pub fn ball_collision_system(

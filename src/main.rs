@@ -30,6 +30,7 @@ fn main() {
         .add_system_set(gameplay::enter_system_set())
         .add_system_set(gameplay::update_system_set())
         .add_system_set(gameplay::paused_update_system_set())
+        .add_system_set(gameplay::exit_system_set())
         .add_system_set(pause_menu::enter_system_set())
         .add_system_set(pause_menu::update_system_set())
         .add_system_set(pause_menu::exit_system_set())

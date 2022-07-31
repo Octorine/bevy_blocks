@@ -101,6 +101,7 @@ pub fn setup_main_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
 }
 
 fn menu_update(
+    mut commands: Commands,
     mut state: ResMut<State<crate::state::GameState>>,
     mut interaction_query: Query<
         (&Interaction, &mut UiColor, &Children),
@@ -118,6 +119,7 @@ fn menu_update(
                 }
                 else if text.sections[0].value == "Start" {
                         state.set(GameState::Level);
+                        commands.insert_resource(crate::gameplay::Score::new());
                 }
                 else { () }},
 
