@@ -58,7 +58,7 @@ fn get_keyboard_input(
         .iter()
         .any(|evt| evt.state == ElementState::Pressed)
     {
-        state.pop();
+        state.pop().expect("Failed to open pause menu");
     }
 }
 fn teardown(mut commands: Commands, pause_text: Query<(Entity, &PauseUI)>) {

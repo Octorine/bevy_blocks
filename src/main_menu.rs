@@ -5,11 +5,6 @@ use crate::state::GameState;
 #[derive(Component)]
 struct PauseUI;
 
-pub enum MainMenuEvent {
-    StartEvent,
-    QuitEvent,
-}
-
 pub fn enter_system_set() -> SystemSet {
     SystemSet::on_enter(crate::state::GameState::MainMenu).with_system(setup_main_menu)
 }
@@ -104,21 +99,21 @@ fn menu_update(
     mut commands: Commands,
     mut state: ResMut<State<crate::state::GameState>>,
     mut interaction_query: Query<
-        (&Interaction, &mut UiColor, &Children),
+        (&Interaction, &Children),
         (Changed<Interaction>, With<Button>),
     >,
     mut text_query: Query<&mut Text>,
     mut exit: EventWriter<AppExit>,
 ) {
-    for (interaction, mut color, children) in interaction_query.iter_mut() {
-        let mut text = text_query.get_mut(children[0]).unwrap();
+    for (interaction, children) in interaction_query.iter_mut() {
+        let text = text_query.get_mut(children[0]).unwrap();
         match *interaction {
             Interaction::Clicked => {
                 if text.sections[0].value == "Quit" {
                     exit.send(AppExit);
                 }
                 else if text.sections[0].value == "Start" {
-                        state.set(GameState::Level);
+                        state.set(GameState::Level).expect("Failed to start level");
                         commands.insert_resource(crate::gameplay::Score::new());
                 }
                 else { () }},

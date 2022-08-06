@@ -213,7 +213,7 @@ pub fn setup_ball_and_paddle(commands: &mut Commands, atlas: Handle<TextureAtlas
 }
 
 pub fn paddle_movement_system(
-    mut keyboard_input: ResMut<Input<KeyCode>>,
+    keyboard_input: ResMut<Input<KeyCode>>,
     mut state: ResMut<State<crate::state::GameState>>,
     mut query: Query<(&Paddle, &mut Transform)>,
 ) {
@@ -227,7 +227,7 @@ pub fn paddle_movement_system(
         direction += 1.0;
     }
     if keyboard_input.pressed(KeyCode::Space) || keyboard_input.pressed(KeyCode::P) {
-        state.push(crate::state::GameState::PauseMenu);
+        state.push(crate::state::GameState::PauseMenu).expect("Failed to open Pause Menu");
     }
 
     let horizontal_limit = (SCREEN_WIDTH - 162.) / 2.;
@@ -243,15 +243,14 @@ pub fn ball_movement_system(mut ball_query: Query<(&Ball, &mut Transform)>) {
     transform.translation += ball.velocity * TIME_STEP;
 }
 pub fn ball_boundary_system(
-    mut commands: Commands,
-    mut ball_query: Query<(&mut Ball, &mut Transform, Entity)>,
+    mut ball_query: Query<(&mut Ball, &mut Transform)>,
     mut state: ResMut<State<crate::state::GameState>>,
     mut lives_txt_query: Query<(&mut Text, &LivesText)>,
     mut score: ResMut<Score>,
 ) {
     let horizontal = SCREEN_WIDTH / 2. - 15.0;
     let vertical = (SCREEN_HEIGHT - 30.) / 2.;
-    let (mut ball, mut transform, ball_entity) = ball_query.single_mut();
+    let (mut ball, mut transform) = ball_query.single_mut();
     if transform.translation.x < -horizontal || transform.translation.x > horizontal {
         transform.translation.x = transform.translation.x.min(horizontal).max(-horizontal);
         ball.velocity.x *= -1.0;
@@ -263,14 +262,14 @@ pub fn ball_boundary_system(
     if transform.translation.y < -vertical {
         score.lives -= 1;
         if score.lives <= 0 {
-            state.set(crate::state::GameState::MainMenu);
+            state.set(crate::state::GameState::MainMenu).expect("Failed to open main menu");
         } else {
             let (mut lives_text, _) = lives_txt_query.get_single_mut().unwrap();
             lives_text.sections[0].value = format!("Lives: {}", &score.lives);
             ball.velocity = 400.0 * Vec3::new(0.5, 0.5, 0.0).normalize();
 
             *transform = Transform::from_xyz(0.0, -250.0, 1.0);
-            state.push(crate::state::GameState::PauseMenu);
+            state.push(crate::state::GameState::PauseMenu).expect("Failed to open pause menu");
         }
     }
 }

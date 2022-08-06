@@ -1,4 +1,3 @@
-use bevy::prelude::*;
 
 #[derive(Debug, PartialEq, Eq, Clone, Hash)]
 pub enum GameState {
@@ -6,5 +5,4 @@ pub enum GameState {
     PauseMenu,
     Level,
     GameOver,
-    PreLevel,
 }
