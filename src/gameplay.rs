@@ -29,7 +29,9 @@ pub fn initial_pause_check(
     mut is_new: ResMut<BrandNewLevel>,
 ) {
     if is_new.0 {
-        state.push(crate::state::GameState::PauseMenu).expect("Failed to enter pause menu");
+        state
+            .push(crate::state::GameState::PauseMenu)
+            .expect("Failed to enter pause menu");
         is_new.0 = false;
     }
 }
@@ -143,7 +145,7 @@ pub fn setup_level_ui(commands: &mut Commands, asset_server: Res<AssetServer>, s
             parent
                 .spawn_bundle(TextBundle {
                     text: Text::with_section(
-                              format!("Score: {}", score.points),
+                        format!("Score: {}", score.points),
                         text_style.clone(),
                         TextAlignment {
                             vertical: VerticalAlign::Top,
@@ -161,7 +163,7 @@ pub fn setup_level_ui(commands: &mut Commands, asset_server: Res<AssetServer>, s
             parent
                 .spawn_bundle(TextBundle {
                     text: Text::with_section(
-                              format!("Lives: {}", score.lives),
+                        format!("Lives: {}", score.lives),
                         text_style,
                         TextAlignment {
                             vertical: VerticalAlign::Top,
@@ -227,7 +229,9 @@ pub fn paddle_movement_system(
         direction += 1.0;
     }
     if keyboard_input.pressed(KeyCode::Space) || keyboard_input.pressed(KeyCode::P) {
-        state.push(crate::state::GameState::PauseMenu).expect("Failed to open Pause Menu");
+        state
+            .push(crate::state::GameState::PauseMenu)
+            .expect("Failed to open Pause Menu");
     }
 
     let horizontal_limit = (SCREEN_WIDTH - 162.) / 2.;
@@ -262,14 +266,18 @@ pub fn ball_boundary_system(
     if transform.translation.y < -vertical {
         score.lives -= 1;
         if score.lives <= 0 {
-            state.set(crate::state::GameState::MainMenu).expect("Failed to open main menu");
+            state
+                .set(crate::state::GameState::MainMenu)
+                .expect("Failed to open main menu");
         } else {
             let (mut lives_text, _) = lives_txt_query.get_single_mut().unwrap();
             lives_text.sections[0].value = format!("Lives: {}", &score.lives);
             ball.velocity = 400.0 * Vec3::new(0.5, 0.5, 0.0).normalize();
 
             *transform = Transform::from_xyz(0.0, -250.0, 1.0);
-            state.push(crate::state::GameState::PauseMenu).expect("Failed to open pause menu");
+            state
+                .push(crate::state::GameState::PauseMenu)
+                .expect("Failed to open pause menu");
         }
     }
 }
