@@ -21,10 +21,10 @@ fn main() {
             title: "Break the Blocks!".to_string(),
             width: SCREEN_WIDTH,
             height: SCREEN_HEIGHT,
-            vsync: true,
+            present_mode: bevy::window::PresentMode::Mailbox,
             ..Default::default()
         })
-        .add_startup_system(setup.system())
+        .add_startup_system(setup)
         .add_plugins(DefaultPlugins)
         .add_system(bevy::input::system::exit_on_esc_system.system())
         .add_system_set(gameplay::enter_system_set())
