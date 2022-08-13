@@ -19,7 +19,7 @@ pub struct Level {
     pub rows: Vec<String>,
 }
 
-pub fn add_bricks(commands: &mut Commands, level: &Level, atlas: Handle<TextureAtlas>) {
+pub fn add_bricks(commands: &mut Commands, score: &mut crate::gameplay::Score, level: &Level, atlas: Handle<TextureAtlas>) {
     let mut block_map: std::collections::HashMap<char, usize> = std::collections::HashMap::new();
     for block in &level.blocks {
         block_map.insert(block.name, block.sprite_number);
@@ -32,6 +32,7 @@ pub fn add_bricks(commands: &mut Commands, level: &Level, atlas: Handle<TextureA
         for c in row.chars() {
             if let Some(num) = block_map.get(&c) {
                 if c != ' ' {
+                    score.bricks_left += 1;
                     commands
                         .spawn_bundle(SpriteSheetBundle {
                             texture_atlas: atlas.clone(),

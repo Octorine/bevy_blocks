@@ -59,10 +59,11 @@ fn setup_level(
     mut asset_server: Res<AssetServer>,
     atlases: ResMut<Assets<TextureAtlas>>,
     levels: Res<Vec<crate::level::Level>>,
-    score: Res<Score>,
+    mut score: ResMut<Score>,
 ) {
     let atlas = crate::sprite_sheet::build_sprite_sheet(&mut asset_server, atlases);
-    crate::level::add_bricks(&mut commands, &levels[score.current_level], atlas.clone());
+    let new_level = &levels[score.current_level];
+    crate::level::add_bricks(&mut commands, &mut score, new_level, atlas.clone());
     setup_ball_and_paddle(&mut commands, atlas);
     setup_level_ui(&mut commands, asset_server, &*score);
     commands.insert_resource(BrandNewLevel(true));
@@ -95,6 +96,7 @@ impl Collider {
 #[derive(Component)]
 pub struct Score {
     pub current_level: usize,
+    pub bricks_left: usize,
     pub points: i32,
     pub lives: i32,
 }
@@ -102,6 +104,7 @@ impl Score {
     pub fn new() -> Score {
         Score {
             points: 0,
+            bricks_left: 0,
             lives: 3,
             current_level: 0,
         }
@@ -284,6 +287,7 @@ pub fn ball_boundary_system(
 pub fn ball_collision_system(
     mut commands: Commands,
     mut ball_query: Query<(&mut Ball, &Transform)>,
+    mut state: ResMut<State<crate::state::GameState>>,
     mut score: ResMut<Score>,
     mut points_txt_query: Query<(&mut Text, &PointsText)>,
     collider_query: Query<(Entity, &Collider, &Transform)>,
@@ -306,6 +310,12 @@ pub fn ball_collision_system(
             if let Collider::Scorable { size: _ } = *collider {
                 commands.entity(collider_entity).despawn();
                 score.points += 1;
+                score.bricks_left = score.bricks_left.saturating_sub(1);
+                if score.bricks_left == 0 {
+                    score.current_level += 1;
+                    state.set(crate::state::GameState::MainMenu);
+                    state.overwrite_set(crate::state::GameState::Level);
+                }
                 points_text.as_mut().sections[0].value = format!("Score: {}", score.points);
             }
 
