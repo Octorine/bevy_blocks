@@ -4,7 +4,6 @@ use bevy::{
 };
 
 use crate::{SCREEN_HEIGHT, SCREEN_WIDTH};
-const TIME_STEP: f32 = 1.0 / 60.0;
 
 pub fn enter_system_set() -> SystemSet {
     SystemSet::on_enter(crate::state::GameState::Level).with_system(setup_level)
@@ -220,6 +219,7 @@ pub fn setup_ball_and_paddle(commands: &mut Commands, atlas: Handle<TextureAtlas
 pub fn paddle_movement_system(
     keyboard_input: ResMut<Input<KeyCode>>,
     mut state: ResMut<State<crate::state::GameState>>,
+    time: Res<Time>,
     mut query: Query<(&Paddle, &mut Transform)>,
 ) {
     let (paddle, mut transform) = query.single_mut();
@@ -240,14 +240,14 @@ pub fn paddle_movement_system(
     let horizontal_limit = (SCREEN_WIDTH - 162.) / 2.;
     let translation = &mut transform.translation;
     // move the paddle horizontally
-    translation.x += direction * paddle.speed * TIME_STEP;
+    translation.x += direction * paddle.speed * time.delta_seconds();
     // bound the paddle within the walls
     translation.x = translation.x.min(horizontal_limit).max(-horizontal_limit);
 }
 
-pub fn ball_movement_system(mut ball_query: Query<(&Ball, &mut Transform)>) {
+pub fn ball_movement_system(mut ball_query: Query<(&Ball, &mut Transform)>, time: Res<Time>) {
     let (ball, mut transform) = ball_query.single_mut();
-    transform.translation += ball.velocity * TIME_STEP;
+    transform.translation += ball.velocity * time.delta_seconds();
 }
 pub fn ball_boundary_system(
     mut ball_query: Query<(&mut Ball, &mut Transform)>,
