@@ -313,8 +313,7 @@ pub fn ball_collision_system(
                 score.bricks_left = score.bricks_left.saturating_sub(1);
                 if score.bricks_left == 0 {
                     score.current_level += 1;
-                    state.set(crate::state::GameState::MainMenu);
-                    state.overwrite_set(crate::state::GameState::Level);
+                    state.restart();
                 }
                 points_text.as_mut().sections[0].value = format!("Score: {}", score.points);
             }
