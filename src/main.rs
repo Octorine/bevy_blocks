@@ -2,6 +2,7 @@ mod gameplay;
 mod level;
 mod pause_menu;
 mod main_menu;
+mod game_over;
 mod sprite_sheet;
 mod state;
 use bevy::{
@@ -34,6 +35,9 @@ fn main() {
         .add_system_set(pause_menu::enter_system_set())
         .add_system_set(pause_menu::update_system_set())
         .add_system_set(pause_menu::exit_system_set())
+        .add_system_set(game_over::enter_system_set())
+        .add_system_set(game_over::update_system_set())
+        .add_system_set(game_over::exit_system_set())
         .add_system_set(main_menu::enter_system_set())
         .add_system_set(main_menu::update_system_set())
         .add_system_set(main_menu::exit_system_set())

@@ -56,16 +56,21 @@ fn teardown_system(
 fn setup_level(
     mut commands: Commands,
     mut asset_server: Res<AssetServer>,
+    mut state: ResMut<State<crate::state::GameState>>,
     atlases: ResMut<Assets<TextureAtlas>>,
     levels: Res<Vec<crate::level::Level>>,
     mut score: ResMut<Score>,
 ) {
     let atlas = crate::sprite_sheet::build_sprite_sheet(&mut asset_server, atlases);
-    let new_level = &levels[score.current_level];
-    crate::level::add_bricks(&mut commands, &mut score, new_level, atlas.clone());
-    setup_ball_and_paddle(&mut commands, atlas);
-    setup_level_ui(&mut commands, asset_server, &*score);
-    commands.insert_resource(BrandNewLevel(true));
+    if score.current_level >= levels.len() {
+        state.set(crate::state::GameState::GameOver);
+    } else {
+        let new_level = &levels[score.current_level];
+        crate::level::add_bricks(&mut commands, &mut score, new_level, atlas.clone());
+        setup_ball_and_paddle(&mut commands, atlas);
+        setup_level_ui(&mut commands, asset_server, &*score);
+        commands.insert_resource(BrandNewLevel(true));
+    }
 }
 #[derive(Component)]
 pub struct Paddle {
@@ -329,10 +334,10 @@ pub fn ball_collision_system(
                 Collision::Right => reflect_x = velocity.x < 0.0,
                 Collision::Top => reflect_y = velocity.y < 0.0,
                 Collision::Bottom => reflect_y = velocity.y > 0.0,
-                Collision::Inside => {reflect_y = true;
+                Collision::Inside => {
+                    reflect_y = true;
                     reflect_x = true
-                },
-
+                }
             }
 
             // reflect velocity on the x-axis if we hit something on the x-axis
